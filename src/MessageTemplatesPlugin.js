@@ -3,6 +3,7 @@ import { VERSION } from '@twilio/flex-ui';
 import { FlexPlugin } from 'flex-plugin';
 
 import CustomTaskListContainer from './components/CustomTaskList/CustomTaskList.Container';
+import MessageTemplates from './components/MessageTemplates/MessageTemplates';
 import reducers, { namespace } from './states';
 
 const PLUGIN_NAME = 'MessageTemplatesPlugin';
@@ -23,7 +24,13 @@ export default class MessageTemplatesPlugin extends FlexPlugin {
     this.registerReducers(manager);
 
     const options = { sortOrder: -1 };
-    flex.AgentDesktopView.Panel1.Content.add(<CustomTaskListContainer key="MessageTemplatesPlugin-component" />, options);
+    //flex.AgentDesktopView.Panel1.Content.add(<CustomTaskListContainer key="MessageTemplatesPlugin-component" />, options);
+
+
+    flex.CRMContainer.Content.replace(
+      <MessageTemplates key="msg-templates" />
+    );
+
   }
 
   /**
