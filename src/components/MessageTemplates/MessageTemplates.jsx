@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions, withTheme, IconButton, Manager, TaskHelper } from '@twilio/flex-ui';
+import { Actions, TaskHelper, withTaskContext } from '@twilio/flex-ui';
 
 import {
   Button,
@@ -13,71 +13,61 @@ import {
 import Message from "@material-ui/icons/Message";
 import { MessageStyle } from './MessageTemplates.styles';
 
-const SAMPLE_MSG = "This is a sample message template/macro for responsing to a customer inquiry.";
+const MessageTemplates = ({ task }) => {
 
-class MessageTemplates extends React.Component {
+    const messages = [
+        {
+            body: "This is a sample message template/macro for responsing to a customer inquiry."
+        },
+        {
+            body: "Sample Message 2"
+        }
+    ];
 
-  constructor(props) {
-    super(props);
+    const sendMessage = async (messageBody) => {
+        let chanSid = TaskHelper.getTaskChatChannelSid(task);
+        if (chanSid) {
+            Actions.invokeAction('SendMessage', { body: messageBody, channelSid: chanSid });
+        }
+    };
 
-  }
-
-  sendMessage = async (messageBody) => {
-    //May Need better way to get the channel Sid for the chat the agent is working on
-    let _manager = Manager.getInstance();
-    let flexState = _manager.store.getState().flex;
-    let reservationSid = flexState.view.selectedTaskSid;
-    console.log('Selected Task/Res = ', reservationSid);
-    let task = TaskHelper.getTaskByTaskSid(reservationSid);
-    let chanSid = TaskHelper.getTaskChatChannelSid(task);
-    console.log('Channel Sid =', chanSid);
-    if (chanSid) {
-      Actions.invokeAction('SendMessage', { body: messageBody, channelSid: chanSid });
-    }
-
-  }
-
-  render() {
     return (
-      <div>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell> Click to Send </TableCell>
+        <div>
+            <Table>
+            <TableHead>
+                <TableRow>
+                    <TableCell> Click to Send </TableCell>
+                    <TableCell>Message Template</TableCell>
+                    <TableCell>Customer Name</TableCell>
+                    <TableCell>Custom Field 1</TableCell>
+                    <TableCell>Custom Field 2</TableCell>
+                </TableRow>
+            </TableHead>
+                <TableBody>
+                    {messages.map((msg, index) => {
+                        return (
+                            <TableRow key={`msg-${index}`}>
+                                <TableCell>
 
-              <TableCell>Message Template</TableCell>
-              <TableCell>Customer Name</TableCell>
-              <TableCell>Custom Field 1</TableCell>
-              <TableCell>Custom Field 2</TableCell>
+                                    <Message
+                                    title='Send Response'
+                                    onClick={() => {
+                                        sendMessage(msg.body);
+                                    }}
+                                    />
 
-            </TableRow>
-
-          </TableHead>
-          <TableBody>
-            <TableRow key="msg1">
-              <TableCell>
-
-                <Message
-                  title='Send Response'
-                  onClick={() => {
-                    this.sendMessage(SAMPLE_MSG);
-                  }}
-                />
-
-              </TableCell>
-
-              <TableCell><MessageStyle> {SAMPLE_MSG}  </MessageStyle></TableCell>
-              <TableCell><MessageStyle> Jane Doe </MessageStyle></TableCell>
-              <TableCell><MessageStyle> Today's date </MessageStyle></TableCell>
-              <TableCell><MessageStyle> Other value </MessageStyle></TableCell>
-            </TableRow>
-
-          </TableBody>
-
-        </Table>
-      </div>
+                                </TableCell>
+                                <TableCell><MessageStyle> {msg.body}  </MessageStyle></TableCell>
+                                <TableCell><MessageStyle> Jane Doe </MessageStyle></TableCell>
+                                <TableCell><MessageStyle> Today's date </MessageStyle></TableCell>
+                                <TableCell><MessageStyle> Other value </MessageStyle></TableCell>
+                            </TableRow>
+                        );
+                    })}
+                </TableBody>
+            </Table>
+        </div>
     );
-  };
 }
 
-export default MessageTemplates;
+export default withTaskContext(MessageTemplates);
