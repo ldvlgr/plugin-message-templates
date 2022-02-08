@@ -21,18 +21,34 @@ const MessageTemplates = ({ task }) => {
         },
         {
             body: "Sample Message 2"
+        },
+        {
+            body: "Hello %custName%, nice to meet you."
         }
     ];
 
-    const sendMessage = async (messageBody) => {
-        let chanSid = TaskHelper.getTaskChatChannelSid(task);
+    const sendMessage = async (messageTemplate) => {
+        const chanSid = TaskHelper.getTaskChatChannelSid(task);
+        const messageBody = parseMessageTemplate(messageTemplate);
+
         if (chanSid) {
             Actions.invokeAction('SendMessage', { body: messageBody, channelSid: chanSid });
         }
     };
 
+    const parseMessageTemplate = (body) => {
+        if (body.includes('%custName%')) {
+            return body.replace('%custName%', getCustomerName(task));
+        }
+        return body;
+    };
+
+    const getCustomerName = (task) => {
+        return task.attributes.customerName || 'Jane Doe';
+    };
+
     return (
-        <div>
+        <>
             <Table>
             <TableHead>
                 <TableRow>
@@ -58,7 +74,7 @@ const MessageTemplates = ({ task }) => {
 
                                 </TableCell>
                                 <TableCell><MessageStyle> {msg.body}  </MessageStyle></TableCell>
-                                <TableCell><MessageStyle> Jane Doe </MessageStyle></TableCell>
+                                <TableCell><MessageStyle> {getCustomerName(task)} </MessageStyle></TableCell>
                                 <TableCell><MessageStyle> Today's date </MessageStyle></TableCell>
                                 <TableCell><MessageStyle> Other value </MessageStyle></TableCell>
                             </TableRow>
@@ -66,7 +82,7 @@ const MessageTemplates = ({ task }) => {
                     })}
                 </TableBody>
             </Table>
-        </div>
+        </>
     );
 }
 
