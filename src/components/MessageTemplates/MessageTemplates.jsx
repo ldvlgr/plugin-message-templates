@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Actions, TaskHelper, withTaskContext } from '@twilio/flex-ui';
 
 import {
@@ -14,6 +14,17 @@ import Message from "@material-ui/icons/Message";
 import { MessageStyle } from './MessageTemplates.styles';
 
 const MessageTemplates = ({ task }) => {
+    const [showTaskUpdate, setShowTaskUpdate] = useState(false);
+    useEffect(() => {
+        if (!task) {
+            return setShowTaskUpdate(false);
+        }
+        if (task.status === 'wrapping') {
+            setShowTaskUpdate(true);
+        } else {
+            setShowTaskUpdate(false);
+        }
+    }, [task?.status])
 
     const messages = [
         {
@@ -47,12 +58,22 @@ const MessageTemplates = ({ task }) => {
         return task.attributes.customerName || 'Jane Doe';
     };
 
+    const updateTask = async (task) => {
+        let attributes = task.attributes;
+        attributes.resolution = true;
+        return await task.setAttributes(attributes);
+    };
+
+    if (!task) {
+        return null;
+    }
+
     return (
         <>
             <Table>
             <TableHead>
                 <TableRow>
-                    <TableCell> Click to Send </TableCell>
+                    <TableCell>Click to Send </TableCell>
                     <TableCell>Message Template</TableCell>
                     <TableCell>Customer Name</TableCell>
                     <TableCell>Custom Field 1</TableCell>
@@ -82,6 +103,9 @@ const MessageTemplates = ({ task }) => {
                     })}
                 </TableBody>
             </Table>
+            {
+                showTaskUpdate && (<Button variant="contained" color="primary" onClick={() => updateTask(task)}>Update Task!</Button>)
+            }
         </>
     );
 }

@@ -23,9 +23,15 @@ export default class MessageTemplatesPlugin extends FlexPlugin {
   async init(flex, manager) {
     this.registerReducers(manager);
 
-    const options = { sortOrder: -1 };
+    // const options = { sortOrder: -1 };
     //flex.AgentDesktopView.Panel1.Content.add(<CustomTaskListContainer key="MessageTemplatesPlugin-component" />, options);
 
+    flex.Actions.addListener('beforeCompleteTask', (payload, abortFunction) => {
+        const { task } = payload;
+        if (!task.attributes.hasOwnProperty('resolution')) {
+            return abortFunction();
+        }
+    });
 
     flex.CRMContainer.Content.replace(
       <MessageTemplates key="msg-templates" />
